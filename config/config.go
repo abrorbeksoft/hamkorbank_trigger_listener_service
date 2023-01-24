@@ -32,7 +32,7 @@ type Config struct {
 	RabbitMQPassword string
 
 	RestServiceHost string
-	RestServicePort string
+	RestServicePort int
 
 	LogLevel string
 }
@@ -52,6 +52,8 @@ func Load() Config {
 	config.Version = cast.ToString(getOrReturnDefaultValue("VERSION", "1.0"))
 
 	//config.PostgresMaxConnections = cast.ToInt32(getOrReturnDefaultValue("POSTGRES_MAX_CONNECTIONS", 30))
+	config.RabbitMQUser = cast.ToString(getOrReturnDefaultValue("RABBIT_MQ_USER", "guest"))
+	config.RabbitMQPassword = cast.ToString(getOrReturnDefaultValue("RABBIT_MQ_PASSWORD", "guest"))
 	config.RabbitMQHost = cast.ToString(getOrReturnDefaultValue("RABBIT_MQ_HOST", "localhost"))
 	config.RabbitMQPort = cast.ToInt(getOrReturnDefaultValue("RABBIT_MQ_PORT", 5672))
 
@@ -59,7 +61,7 @@ func Load() Config {
 	config.DefaultLimit = cast.ToString(getOrReturnDefaultValue("DEFAULT_LIMIT", "10000000"))
 
 	config.RestServiceHost = cast.ToString(getOrReturnDefaultValue("REST_SERVICE_HOST", "localhost"))
-	config.RestServicePort = cast.ToString(getOrReturnDefaultValue("REST_SERVICE_PORT", ":8000"))
+	config.RestServicePort = cast.ToInt(getOrReturnDefaultValue("REST_SERVICE_PORT", 8000))
 
 	return config
 }

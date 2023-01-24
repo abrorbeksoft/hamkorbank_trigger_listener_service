@@ -17,7 +17,7 @@ type RabbitMQI interface {
 	AddConsumer(name string, handler HandlerFunc) error
 	RunConsumers(ctx context.Context)
 	AddPublisher(name string) error
-	Publish(name string, data interface{}) error
+	Publish(ctx context.Context, name string, data []byte) error
 }
 
 func NewRabbitMQ(cfg config.Config, ch *amqp.Channel) (RabbitMQI, error) {

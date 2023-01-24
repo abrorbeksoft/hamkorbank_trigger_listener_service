@@ -13,7 +13,7 @@ import (
 )
 
 type HttpRequestI interface {
-	Request(method string, path string, header string, body string, json []byte, token string, jsonLog []byte, bodyLog, loanId, applicationId, agentId, katmId string) (resp []byte, statusCode int, err error)
+	Request(method string, path string, header string, body string, json []byte, token string) (resp []byte, statusCode int, err error)
 }
 
 type httpClient struct {
@@ -21,7 +21,7 @@ type httpClient struct {
 	timeOut int
 }
 
-func NewHttpClient(baseUrl string, timeOut int) *httpClient {
+func NewHttpClient(baseUrl string, timeOut int) HttpRequestI {
 	return &httpClient{
 		baseUrl: baseUrl,
 		timeOut: timeOut,

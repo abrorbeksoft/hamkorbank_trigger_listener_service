@@ -1,6 +1,7 @@
 package config
 
 const (
+	Consumer  = "trigger_consumer"
 	AllErrors = "consumer1" // errors
 	AllInfo   = "consumer2" // info
 	AllDebug  = "consumer3" // debug

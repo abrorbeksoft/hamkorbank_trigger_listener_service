@@ -7,6 +7,7 @@ import (
 	"trigger_listener_service/config"
 	"trigger_listener_service/events"
 	"trigger_listener_service/pkg/logger"
+	"trigger_listener_service/pkg/requests"
 )
 
 func main() {
@@ -28,11 +29,13 @@ func main() {
 
 	defer ch.Close()
 
+	httpClient := requests.NewHttpClient("", 10)
+
 	pubSubServer, err := events.NewEvents(cfg, log, ch)
 	if err != nil {
 		log.Error("error on event server")
 	}
 
 	ctx := context.Background()
-	pubSubServer.InitServices(ctx) // it should run forever if there is any consumer
+	pubSubServer.InitServices(ctx, cfg, httpClient) // it should run forever if there is any consumer
 }

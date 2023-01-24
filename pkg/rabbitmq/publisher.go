@@ -1,7 +1,9 @@
 package rabbitmq
 
 import (
+	"context"
 	"errors"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type Publisher struct {
@@ -13,6 +15,20 @@ func (r RabbitMQ) AddPublisher(name string) error {
 		panic(errors.New("consumer with the same name already exists: " + name))
 	}
 
+	err := r.channel.ExchangeDeclare(
+		"logs",   // name
+		"direct", // type
+		true,     // durable
+		false,    // auto-deleted
+		false,    // internal
+		false,    // no-wait
+		nil,      // arguments
+	)
+
+	if err != nil {
+		panic(err)
+	}
+
 	r.publishers[name] = &Publisher{
 		name: name,
 	}
@@ -20,27 +36,21 @@ func (r RabbitMQ) AddPublisher(name string) error {
 	return nil
 }
 
-func (r RabbitMQ) Publish(name string, data interface{}) error {
-	//result, err := json.Marshal(data)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//p := r.publishers[name]
-	//
-	//if p == nil {
-	//	return errors.New("publisher with that topic doesn't exists: " + name)
-	//}
+func (r RabbitMQ) Publish(ctx context.Context, name string, data []byte) error {
 
-	//msg := sarama.ProducerMessage{
-	//	Topic: topic,
-	//	Value: sarama.ByteEncoder(result),
-	//}
-	//_, _, err = p.client.SendMessage(&msg)
+	err := r.channel.PublishWithContext(ctx,
+		"logs", // exchange
+		name,   // routing key
+		false,  // mandatory
+		false,  // immediate
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        data,
+		})
 
-	//if err != nil {
-	//	return err
-	//}
+	if err != nil {
+		panic(err)
+	}
 
-	return nil
+	return err
 }

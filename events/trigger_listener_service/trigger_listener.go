@@ -5,6 +5,7 @@ import (
 	"trigger_listener_service/config"
 	"trigger_listener_service/pkg/logger"
 	"trigger_listener_service/pkg/rabbitmq"
+	"trigger_listener_service/pkg/requests"
 )
 
 type Message struct {
@@ -12,21 +13,35 @@ type Message struct {
 }
 
 type triggerListener struct {
-	log      logger.LoggerI
-	rabbitmq rabbitmq.RabbitMQI
-	conn     *amqp.Connection
+	log        logger.LoggerI
+	rabbitmq   rabbitmq.RabbitMQI
+	conn       *amqp.Connection
+	httpClient requests.HttpRequestI
+	cfg        config.Config
 }
 
-func NewTriggerListenerService(log logger.LoggerI, rabbit rabbitmq.RabbitMQI) *triggerListener {
+type Response struct {
+	Status      string `json:"status"`
+	Description string `json:"description"`
+	Data        Phone  `json:"data"`
+}
+
+type Phone struct {
+	ID        string `json:"id"`
+	Phone     string `json:"phone"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+}
+
+func NewTriggerListenerService(log logger.LoggerI, rabbit rabbitmq.RabbitMQI, cfg config.Config, client requests.HttpRequestI) *triggerListener {
 	return &triggerListener{
-		log:      log,
-		rabbitmq: rabbit,
+		log:        log,
+		rabbitmq:   rabbit,
+		httpClient: client,
+		cfg:        cfg,
 	}
 }
 
 func (t *triggerListener) RegisterConsumers() {
-	_ = t.rabbitmq.AddConsumer(config.AllErrors, t.ListenErrors)
-	_ = t.rabbitmq.AddConsumer(config.AllInfo, t.ListenInfo)
-	_ = t.rabbitmq.AddConsumer(config.AllDebug, t.ListenDebug)
-	_ = t.rabbitmq.AddConsumer(config.All, t.ListenAll)
+	_ = t.rabbitmq.AddConsumer(config.Consumer, t.Listen)
 }

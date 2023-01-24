@@ -7,6 +7,7 @@ import (
 	"trigger_listener_service/events/trigger_listener_service"
 	"trigger_listener_service/pkg/logger"
 	"trigger_listener_service/pkg/rabbitmq"
+	"trigger_listener_service/pkg/requests"
 )
 
 type PubSubServer struct {
@@ -30,12 +31,12 @@ func NewEvents(cfg config.Config, log logger.LoggerI, ch *amqp.Channel) (*PubSub
 	}, nil
 }
 
-func (s *PubSubServer) InitServices(ctx context.Context) {
-	triggerListenerService := trigger_listener_service.NewTriggerListenerService(s.log, s.rabbitmq)
+func (s *PubSubServer) InitServices(ctx context.Context, cfg config.Config, httpClient requests.HttpRequestI) {
+	triggerListenerService := trigger_listener_service.NewTriggerListenerService(s.log, s.rabbitmq, cfg, httpClient)
 	triggerListenerService.RegisterConsumers()
 	s.rabbitmq.RunConsumers(ctx)
 }
 
 func initPublishers(rabbit rabbitmq.RabbitMQI) {
-	_ = rabbit.AddPublisher("v1.websocket_service.response")
+	_ = rabbit.AddPublisher("logger")
 }
