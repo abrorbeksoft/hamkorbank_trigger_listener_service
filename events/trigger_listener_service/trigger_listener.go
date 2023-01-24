@@ -33,6 +33,10 @@ type Phone struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+type NotFound struct {
+	NotFound string `json:"not_found"`
+}
+
 func NewTriggerListenerService(log logger.LoggerI, rabbit rabbitmq.RabbitMQI, cfg config.Config, client requests.HttpRequestI) *triggerListener {
 	return &triggerListener{
 		log:        log,
