@@ -16,13 +16,13 @@ func (r RabbitMQ) AddPublisher(name string) error {
 	}
 
 	err := r.channel.ExchangeDeclare(
-		"logs",   // name
-		"direct", // type
-		true,     // durable
-		false,    // auto-deleted
-		false,    // internal
-		false,    // no-wait
-		nil,      // arguments
+		"logs",  // name
+		"topic", // type
+		true,    // durable
+		false,   // auto-deleted
+		false,   // internal
+		false,   // no-wait
+		nil,     // arguments
 	)
 
 	if err != nil {

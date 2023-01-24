@@ -3,7 +3,9 @@ package trigger_listener_service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"syscall"
 	"trigger_listener_service/config"
 	"trigger_listener_service/pkg/logger"
 )
@@ -16,7 +18,16 @@ func (t *triggerListener) Listen(ctx context.Context, data []byte) error {
 		return err
 	}
 
-	err = t.rabbitmq.Publish(ctx, config.AllDebug, data)
+	t.log.Info("Debug", logger.Any("resp ", resp))
+
+	d, err := json.Marshal(Message{
+		RecordId: "Nima gap",
+	})
+	if err != nil {
+		t.log.Error("Error while marshaling data", logger.Error(err))
+	}
+
+	err = t.rabbitmq.Publish(ctx, config.AllDebug, d)
 	if err != nil {
 		t.log.Error("Error while publishing data", logger.Error(err))
 	}
@@ -24,9 +35,8 @@ func (t *triggerListener) Listen(ctx context.Context, data []byte) error {
 	path := fmt.Sprintf("http://%s:%d/v1/phone/%s", t.cfg.RestServiceHost, t.cfg.RestServicePort, resp.RecordId)
 
 	_, status, err := t.httpClient.Request("GET", path, "application/json", "", nil, "")
-	if err != nil && status != 500 {
-		t.log.Error("Error while getting phone number by id")
-		return err
+	if errors.Is(err, syscall.ECONNREFUSED) {
+		panic(err)
 	}
 
 	b, err := json.Marshal(Message{
@@ -34,11 +44,6 @@ func (t *triggerListener) Listen(ctx context.Context, data []byte) error {
 	})
 	if err != nil {
 		t.log.Error("Error while marshaling data", logger.Error(err))
-	}
-
-	err = t.rabbitmq.Publish(ctx, config.AllDebug, b)
-	if err != nil {
-		t.log.Error("Error while publishing data", logger.Error(err))
 	}
 
 	if status == 404 {

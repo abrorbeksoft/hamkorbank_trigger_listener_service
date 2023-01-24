@@ -20,13 +20,13 @@ func (r RabbitMQ) AddConsumer(name string, handler HandlerFunc) error {
 	}
 
 	err := r.channel.ExchangeDeclare(
-		"logs",   // name
-		"direct", // type
-		true,     // durable
-		false,    // auto-deleted
-		false,    // internal
-		false,    // no-wait
-		nil,      // arguments
+		"logs",  // name
+		"topic", // type
+		true,    // durable
+		false,   // auto-deleted
+		false,   // internal
+		false,   // no-wait
+		nil,     // arguments
 	)
 
 	if err != nil {
@@ -34,12 +34,12 @@ func (r RabbitMQ) AddConsumer(name string, handler HandlerFunc) error {
 	}
 
 	q, err := r.channel.QueueDeclare(
-		name,  // name
-		false, // durable
-		false, // delete when unused
-		true,  // exclusive
-		false, // no-wait
-		nil,   // arguments
+		"queue."+name, // name
+		false,         // durable
+		false,         // delete when unused
+		true,          // exclusive
+		false,         // no-wait
+		nil,           // arguments
 	)
 
 	err = r.channel.QueueBind(

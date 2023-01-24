@@ -29,6 +29,15 @@ func main() {
 
 	defer ch.Close()
 
+	err = ch.Qos(
+		1,     // prefetch count
+		0,     // prefetch size
+		false, // global
+	)
+	if err != nil {
+		panic(err)
+	}
+
 	httpClient := requests.NewHttpClient("", 10)
 
 	pubSubServer, err := events.NewEvents(cfg, log, ch)
